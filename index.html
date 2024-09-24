@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설문조사</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .result-table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 50%;
+        }
+        .result-table, .result-table th, .result-table td {
+            border: 1px solid black;
+        }
+        .result-table th, .result-table td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+    <!-- SheetJS 라이브러리 사용 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        function validateForm() {
+            // 각 항목의 값을 가져옵니다.
+            var item1 = parseInt(document.getElementById("item1").value) || 0;
+            var item2 = parseInt(document.getElementById("item2").value) || 0;
+            var item3 = parseInt(document.getElementById("item3").value) || 0;
+            var item4 = parseInt(document.getElementById("item4").value) || 0;
+
+            // 총합을 계산합니다.
+            var total = item1 + item2 + item3 + item4;
+
+            // 총합이 100점이 아니면 경고 메시지를 출력하고 제출을 막습니다.
+            if (total !== 100) {
+                alert("점수의 총합은 반드시 100점이어야 합니다. 현재 총합: " + total);
+                return false;  // 폼 제출 방지
+            }
+
+            // 응답 결과를 테이블로 출력합니다.
+            showResults(item1, item2, item3, item4);
+            return false;  // 폼 제출 방지 (새로고침 방지)
+        }
+
+        function showResults(item1, item2, item3, item4) {
+            // 결과 표에 입력한 데이터를 추가합니다.
+            document.getElementById("result").innerHTML = `
+                <h2>응답 결과</h2>
+                <table class="result-table">
+                    <tr>
+                        <th>항목</th>
+                        <th>점수</th>
+                    </tr>
+                    <tr>
+                        <td>항목 1</td>
+                        <td>${item1}</td>
+                    </tr>
+                    <tr>
+                        <td>항목 2</td>
+                        <td>${item2}</td>
+                    </tr>
+                    <tr>
+                        <td>항목 3</td>
+                        <td>${item3}</td>
+                    </tr>
+                    <tr>
+                        <td>항목 4</td>
+                        <td>${item4}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>총합</strong></td>
+                        <td><strong>${item1 + item2 + item3 + item4}</strong></td>
+                    </tr>
+                </table>
+                <br>
+                <button onclick="downloadExcel(${item1}, ${item2}, ${item3}, ${item4})">엑셀 파일로 저장</button>
+            `;
+        }
+
+        function downloadExcel(item1, item2, item3, item4) {
+            // 엑셀 데이터 생성
+            var wb = XLSX.utils.book_new();
+            var ws_data = [
+                ["항목", "점수"],
+                ["항목 1", item1],
+                ["항목 2", item2],
+                ["항목 3", item3],
+                ["항목 4", item4],
+                ["총합", item1 + item2 + item3 + item4]
+            ];
+            var ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, "응답 결과");
+
+            // 엑셀 파일 다운로드
+            XLSX.writeFile(wb, "survey_results.xlsx");
+        }
+    </script>
+</head>
+<body>
+    <h1>설문조사</h1>
+    <form onsubmit="return validateForm()">
+        <label for="item1">항목 1:</label>
+        <input type="number" id="item1" name="item1" min="0" max="100"><br><br>
+
+        <label for="item2">항목 2:</label>
+        <input type="number" id="item2" name="item2" min="0" max="100"><br><br>
+
+        <label for="item3">항목 3:</label>
+        <input type="number" id="item3" name="item3" min="0" max="100"><br><br>
+
+        <label for="item4">항목 4:</label>
+        <input type="number" id="item4" name="item4" min="0" max="100"><br><br>
+
+        <input type="submit" value="제출">
+    </form>
+
+    <!-- 결과가 출력될 영역 -->
+    <div id="result"></div>
+</body>
+</html>
